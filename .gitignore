@@ -1,0 +1,21 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Data & Database files
+data/raw/*
+data/processed/*
+db/*.db
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!db/.gitkeep
+
+# IDE & OS files
+.DS_Store
+.vscode/
+.idea/

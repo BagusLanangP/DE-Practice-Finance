@@ -1,0 +1,39 @@
+services:
+  postgres_dw:
+    image: postgres:16-alpine
+    container_name: fintech_postgres_dw
+    restart: always
+    environment:
+      POSTGRES_DB: fintech_dw
+      POSTGRES_USER: fintech_user
+      POSTGRES_PASSWORD: fintech_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fintech_user -d fintech_dw"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  etl_runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fintech_etl_runner
+    depends_on:
+      postgres_dw:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres_dw
+      POSTGRES_DB: fintech_dw
+      POSTGRES_USER: fintech_user
+      POSTGRES_PASSWORD: fintech_password
+      POSTGRES_PORT: "5432"
+    volumes:
+      - ./data:/app/data
+      - ./db:/app/db
+
+volumes:
+  postgres_data:
