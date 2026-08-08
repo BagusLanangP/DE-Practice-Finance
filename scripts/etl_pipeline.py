@@ -4,6 +4,8 @@ import hashlib
 import sqlite3
 import pandas as pd
 from datetime import datetime, timedelta
+from data_quality import DataQualityValidator, DataQualityError
+
 
 try:
     from sqlalchemy import create_engine, text
@@ -164,6 +166,16 @@ class FintechETLPipeline:
 
         print("✅ [TRANSFORM] Transformation complete.")
 
+    def validate(self):
+        print("🛡️ [DATA QUALITY] Running Pre-Load Data Quality Validations...")
+        validator = DataQualityValidator()
+        validator.validate_all(
+            self.dim_users, 
+            self.dim_merchants, 
+            self.fact_transactions
+        )
+        print("✅ [DATA QUALITY] All 5 Gold Rules PASSED!")
+
     def load(self):
         """Load step: Persist into Processed CSV files, SQLite Data Warehouse, and PostgreSQL using UPSERT."""
         if self.fact_transactions is None or self.fact_transactions.empty:
@@ -213,6 +225,7 @@ class FintechETLPipeline:
     def run(self):
         self.extract()
         self.transform()
+        self.validate()
         self.load()
 
 def main():
